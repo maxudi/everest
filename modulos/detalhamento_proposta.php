@@ -1,12 +1,18 @@
 <?php
 require_once '../config.php';
 try {
+<<<<<<< HEAD
     // Busca os dados salvos para o registro padrão ID = 1
     $stmt = $pdo->prepare("SELECT * FROM detalhamento_proposta WHERE id = 1");
     $stmt->execute();
     $dados = $stmt->fetch() ?: [];
     
     // Lista de campos oficiais do EVEREST mapeados
+=======
+    $stmt = $pdo->query("SELECT * FROM detalhamento_proposta WHERE id = 1");
+    $dados = $stmt->fetch() ?: [];
+    
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
     $campos = [
         'descricao_correlacao', 'descricao_alinhamento', 'informacoes_complementares', 'justificativa_apoio',
         'link_lattes', 'experiencia_exterior', 'responsavel_executora', 'responsavel_gestora',
@@ -14,7 +20,11 @@ try {
     ];
     foreach($campos as $c) { if(!isset($dados[$c])) $dados[$c] = ''; }
 } catch (PDOException $e) {
+<<<<<<< HEAD
     die("Erro ao carregar dados do banco: " . $e->getMessage());
+=======
+    die("Erro: " . $e->getMessage());
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
 }
 ?>
 <!DOCTYPE html>
@@ -41,8 +51,13 @@ try {
                 <span id="status-salvamento" class="text-sm font-medium text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Pronto</span>
             </div>
 
+<<<<<<< HEAD
             <form id="form-modulo" class="space-y-6" onsubmit="event.preventDefault();">
                 <input type="hidden" name="modulo" value="detalhamento_proposta_update">
+=======
+            <form id="form-modulo" class="space-y-6">
+                <input type="hidden" name="modulo" value="detalhamento_proposta">
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
 
                 <div>
                     <div class="flex justify-between items-end mb-1.5">
@@ -189,6 +204,7 @@ try {
                 const max = parseInt(lbl.getAttribute('data-max'));
                 const txtArea = document.getElementById(targetId);
                 
+<<<<<<< HEAD
                 if(txtArea) {
                     const update = () => {
                         lbl.innerText = `${max - txtArea.value.length} restantes`;
@@ -196,17 +212,29 @@ try {
                     txtArea.addEventListener('input', update);
                     update();
                 }
+=======
+                const update = () => {
+                    lbl.innerText = `${max - txtArea.value.length} restantes`;
+                };
+                txtArea.addEventListener('input', update);
+                update();
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
             });
         }
         initCounters();
 
+<<<<<<< HEAD
         // Autosave robusto corrigido com tratamento de resposta JSON
+=======
+        // Autosave dinâmico (acionado ao digitar)
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         form.addEventListener('input', () => {
             clearTimeout(timeout);
             statusTxt.innerText = "Digitando...";
             statusTxt.className = "text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full";
             
             timeout = setTimeout(() => {
+<<<<<<< HEAD
                 fetch('../salvar.php', { 
                     method: 'POST', 
                     body: new FormData(form) 
@@ -231,6 +259,14 @@ try {
                     console.error(err);
                 });
             }, 800); // Salva 800ms após parar de digitar
+=======
+                fetch('../salvar.php', { method: 'POST', body: new FormData(form) })
+                .then(() => {
+                    statusTxt.innerText = "Salvo automaticamente!";
+                    statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                });
+            }, 1000); // Aguarda 1 segundo após o término da digitação para salvar
+>>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         });
     </script>
 </body>
