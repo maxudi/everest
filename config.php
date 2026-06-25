@@ -1,42 +1,20 @@
 <?php
 // config.php
-/*
-$host = 'painel.netminas.com';
-$port = '3306';
-$dbname = 'geral';
-$username = 'max';
-$password = '148ciapm';
+
+// Tenta ler do ambiente (Easypanel), se não encontrar, usa o padrão local
+$host     = getenv('DB_HOST')     ?: '127.0.0.1';
+$port     = getenv('DB_PORT')     ?: '3306';
+$dbname   = getenv('DB_NAME')     ?: 'geral';
+$username = getenv('DB_USER')     ?: 'root';
+$password = getenv('DB_PASSWORD') ?: '';
 
 try {
-    // Cria a conexão usando PDO
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
-    
-    // Configura o PDO para lançar exceções em caso de erro
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    // Configura o retorno padrão como array associativo (facilita ler os dados)
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
-    // Se der erro na conexão, mata a execução e mostra o erro
+    // Em produção, evite expor o $e->getMessage() diretamente por segurança,
+    // mas para o seu espelho offline, o log direto ajuda no diagnóstico rápido.
     die("Erro ao conectar ao banco de dados: " . $e->getMessage());
-}
-    */
-
-
-// config.php (Versão Local)
-
-$host = '127.0.0.1'; // ou 'localhost'
-$port = '3306';
-$dbname = 'geral';   // certifique-se de criar este banco localmente
-$username = 'root';  // usuário padrão local
-$password = '';      // a maioria das ferramentas locais vem com a senha em branco
-
-try {
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Erro ao conectar ao banco de dados local: " . $e->getMessage());
 }
 ?>
