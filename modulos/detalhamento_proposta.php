@@ -1,30 +1,27 @@
 <?php
 require_once '../config.php';
+
+// Verifica se a conexão com o banco de dados está disponível
+if (!isset($pdo)) {
+    die("Erro: Conexão com o banco de dados não disponível.");
+}
+
 try {
-<<<<<<< HEAD
-    // Busca os dados salvos para o registro padrão ID = 1
-    $stmt = $pdo->prepare("SELECT * FROM detalhamento_proposta WHERE id = 1");
-    $stmt->execute();
-    $dados = $stmt->fetch() ?: [];
-    
-    // Lista de campos oficiais do EVEREST mapeados
-=======
     $stmt = $pdo->query("SELECT * FROM detalhamento_proposta WHERE id = 1");
     $dados = $stmt->fetch() ?: [];
     
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
     $campos = [
-        'descricao_correlacao', 'descricao_alinhamento', 'informacoes_complementares', 'justificativa_apoio',
-        'link_lattes', 'experiencia_exterior', 'responsavel_executora', 'responsavel_gestora',
-        'resultados_impactos', 'resumo_leigo', 'unidade_sei'
+        'descricao_correlacao', 'descricao_alinhamento', 'informacoes_complementares', 
+        'justificativa_apoio', 'link_lattes', 'experiencia_exterior', 
+        'responsavel_executora', 'responsavel_gestora', 'resultados_impactos', 
+        'resumo_leigo', 'unidade_sei'
     ];
-    foreach($campos as $c) { if(!isset($dados[$c])) $dados[$c] = ''; }
+    
+    foreach($campos as $c) { 
+        if(!isset($dados[$c])) $dados[$c] = ''; 
+    }
 } catch (PDOException $e) {
-<<<<<<< HEAD
     die("Erro ao carregar dados do banco: " . $e->getMessage());
-=======
-    die("Erro: " . $e->getMessage());
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
 }
 ?>
 <!DOCTYPE html>
@@ -51,13 +48,8 @@ try {
                 <span id="status-salvamento" class="text-sm font-medium text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Pronto</span>
             </div>
 
-<<<<<<< HEAD
             <form id="form-modulo" class="space-y-6" onsubmit="event.preventDefault();">
                 <input type="hidden" name="modulo" value="detalhamento_proposta_update">
-=======
-            <form id="form-modulo" class="space-y-6">
-                <input type="hidden" name="modulo" value="detalhamento_proposta">
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
 
                 <div>
                     <div class="flex justify-between items-end mb-1.5">
@@ -186,15 +178,37 @@ try {
         // Copiar conteúdo de forma simplificada para a Área de Trabalho
         function copiar(id) {
             const el = document.getElementById(id);
-            if (!el) return;
-            navigator.clipboard.writeText(el.value).then(() => {
-                statusTxt.innerText = "Copiado para o Clipboard! 🚀";
-                statusTxt.className = "text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full";
-                setTimeout(() => {
-                    statusTxt.innerText = "Salvo automaticamente!";
-                    statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
-                }, 1200);
-            });
+            if (!el) {
+                console.error('Elemento não encontrado:', id);
+                return;
+            }
+            
+            // Verifica se a API Clipboard está disponível
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(el.value)
+                    .then(() => {
+                        statusTxt.innerText = "Copiado para o Clipboard! 🚀";
+                        statusTxt.className = "text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full";
+                        setTimeout(() => {
+                            statusTxt.innerText = "Salvo automaticamente!";
+                            statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                        }, 1200);
+                    })
+                    .catch(err => {
+                        console.error('Erro ao copiar:', err);
+                        // Fallback para método alternativo
+                        el.select();
+                        document.execCommand('copy');
+                        statusTxt.innerText = "Copiado!";
+                        statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                    });
+            } else {
+                // Fallback para navegadores antigos
+                el.select();
+                document.execCommand('copy');
+                statusTxt.innerText = "Copiado!";
+                statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+            }
         }
 
         // Atualização e gestão dinâmica de caracteres em tempo real
@@ -204,70 +218,93 @@ try {
                 const max = parseInt(lbl.getAttribute('data-max'));
                 const txtArea = document.getElementById(targetId);
                 
-<<<<<<< HEAD
-                if(txtArea) {
+                if (txtArea) {
                     const update = () => {
-                        lbl.innerText = `${max - txtArea.value.length} restantes`;
+                        const remaining = max - txtArea.value.length;
+                        lbl.innerText = `${remaining} restantes`;
+                        
+                        // Muda a cor quando estiver próximo do limite
+                        if (remaining < 100) {
+                            lbl.className = "text-xs text-red-600 font-medium shrink-0 counter-lbl";
+                        } else if (remaining < 500) {
+                            lbl.className = "text-xs text-orange-500 font-medium shrink-0 counter-lbl";
+                        } else {
+                            lbl.className = "text-xs text-gray-400 font-medium shrink-0 counter-lbl";
+                        }
                     };
+                    
                     txtArea.addEventListener('input', update);
-                    update();
+                    update(); // Atualiza inicialmente
                 }
-=======
-                const update = () => {
-                    lbl.innerText = `${max - txtArea.value.length} restantes`;
-                };
-                txtArea.addEventListener('input', update);
-                update();
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
             });
         }
+        
+        // Inicializa os contadores
         initCounters();
 
-<<<<<<< HEAD
-        // Autosave robusto corrigido com tratamento de resposta JSON
-=======
         // Autosave dinâmico (acionado ao digitar)
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         form.addEventListener('input', () => {
             clearTimeout(timeout);
             statusTxt.innerText = "Digitando...";
             statusTxt.className = "text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded-full";
             
             timeout = setTimeout(() => {
-<<<<<<< HEAD
+                const formData = new FormData(form);
+                
                 fetch('../salvar.php', { 
                     method: 'POST', 
-                    body: new FormData(form) 
+                    body: formData 
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error('Falha na resposta do servidor');
-                    return res.json();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na resposta do servidor: ' + response.status);
+                    }
+                    return response.text();
                 })
                 .then(data => {
-                    if(data.status === 'sucesso') {
-                        statusTxt.innerText = "Salvo automaticamente!";
-                        statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
-                    } else {
-                        statusTxt.innerText = "Erro ao salvar dados";
-                        statusTxt.className = "text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full";
-                        console.error(data.mensagem);
+                    try {
+                        // Tenta parsear como JSON
+                        const jsonData = JSON.parse(data);
+                        if (jsonData.status === 'sucesso') {
+                            statusTxt.innerText = "Salvo automaticamente!";
+                            statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                        } else {
+                            throw new Error(jsonData.mensagem || 'Erro desconhecido');
+                        }
+                    } catch (e) {
+                        // Se não for JSON, verifica se é uma resposta de sucesso simples
+                        if (data.includes('sucesso') || data.includes('ok')) {
+                            statusTxt.innerText = "Salvo automaticamente!";
+                            statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                        } else {
+                            throw new Error('Resposta inesperada do servidor');
+                        }
                     }
                 })
                 .catch(err => {
-                    statusTxt.innerText = "Erro de conexão";
+                    console.error('Erro no autosave:', err);
+                    statusTxt.innerText = "Erro ao salvar";
                     statusTxt.className = "text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full";
-                    console.error(err);
-                });
-            }, 800); // Salva 800ms após parar de digitar
-=======
-                fetch('../salvar.php', { method: 'POST', body: new FormData(form) })
-                .then(() => {
-                    statusTxt.innerText = "Salvo automaticamente!";
-                    statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
                 });
             }, 1000); // Aguarda 1 segundo após o término da digitação para salvar
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         });
+
+        // Salva ao perder o foco (quando clicar fora)
+        form.addEventListener('blur', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                // Dispara um evento de input para salvar
+                form.dispatchEvent(new Event('input'));
+            }
+        }, true);
+
+        // Previne que o usuário saia sem salvar
+        window.addEventListener('beforeunload', (e) => {
+            // Se houver alterações não salvas, mostra um aviso
+            e.preventDefault();
+            e.returnValue = 'Você tem alterações não salvas. Tem certeza que deseja sair?';
+        });
+
+        console.log('📝 Módulo de Detalhamento da Proposta carregado com sucesso!');
     </script>
 </body>
 </html>

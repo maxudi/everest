@@ -2,7 +2,6 @@
 // salvar.php
 require_once 'config.php';
 
-<<<<<<< HEAD
 // Força o cabeçalho a retornar JSON e evita cacheamento pelas requisições Fetch
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
@@ -259,12 +258,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // =========================================================================
     // 6. MODULO: MEMBROS DA EQUIPE (Adicionar e Remover)
     // =========================================================================
-=======
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $modulo = $_POST['modulo'] ?? '';
-
-    // Ação: Adicionar Membro da Equipe
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
     if ($modulo === 'membros_equipe_add') {
         $sql = "INSERT INTO membros_equipe (nome, lattes) VALUES (?, ?)";
         try {
@@ -276,16 +269,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['status' => 'sucesso']);
         } catch (PDOException $e) {
             http_response_code(500);
-<<<<<<< HEAD
             echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao inserir membro: ' . $e->getMessage()]);
-=======
-            echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         }
         exit;
     }
 
-<<<<<<< HEAD
     if ($modulo === 'membros_equipe_del') {
         $id = intval($_POST['id'] ?? 0);
         $sql = "DELETE FROM membros_equipe WHERE id = ?";
@@ -296,23 +284,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao deletar membro: ' . $e->getMessage()]);
-=======
-    // Ação: Remover Membro da Equipe
-    if ($modulo === 'membros_equipe_del') {
-        $sql = "DELETE FROM membros_equipe WHERE id = ?";
-        try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([intval($_POST['id'] ?? 0)]);
-            echo json_encode(['status' => 'sucesso']);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['status' => 'erro', 'mensagem' => $e->getMessage()]);
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
         }
         exit;
     }
 
-<<<<<<< HEAD
     // =========================================================================
     // 7. AÇÃO GENÉRICA: ATUALIZAÇÃO EM LOTE AUTOSAVE (Padrão: nome_tabela_update)
     // =========================================================================
@@ -360,6 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Retorno para caso a ação não mapeie com nenhum bloco acima
     http_response_code(404);
     echo json_encode(['status' => 'erro', 'mensagem' => 'Ação/Módulo inválido ou não mapeado.']);
     exit;
@@ -367,7 +343,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'erro', 'mensagem' => 'Método inválido. Use POST.']);
     exit;
-=======
-    // ... manter os outros blocos de outros módulos ...
->>>>>>> 1f76b18d46e5061b43af8be6c5892dcd9e23fcab
 }

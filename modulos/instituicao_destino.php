@@ -42,7 +42,7 @@ try {
             </div>
 
             <form id="form-modulo" class="space-y-6">
-                <input type="hidden" name="modulo" value="instituicao_destino">
+                <input type="hidden" name="modulo" value="instituicao_destino_update">
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Razão Social</label>
@@ -99,7 +99,6 @@ try {
             const el = document.getElementById(id);
             if (!el) return;
             navigator.clipboard.writeText(el.value).then(() => {
-                const prev = statusTxt.innerText;
                 statusTxt.innerText = "Copiado! 🚀";
                 statusTxt.className = "text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full";
                 setTimeout(() => {
@@ -117,9 +116,20 @@ try {
             
             timeout = setTimeout(() => {
                 fetch('../salvar.php', { method: 'POST', body: new FormData(form) })
-                .then(() => {
-                    statusTxt.innerText = "Salvo automaticamente!";
-                    statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                .then(res => {
+                    if(!res.ok) throw new Error("Erro de rede");
+                    return res.json();
+                })
+                .then(data => {
+                    if(data.status === 'sucesso') {
+                        statusTxt.innerText = "Salvo automaticamente!";
+                        statusTxt.className = "text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full";
+                    }
+                })
+                .catch(err => {
+                    statusTxt.innerText = "Erro ao salvar";
+                    statusTxt.className = "text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full";
+                    console.error(err);
                 });
             }, 800);
         });

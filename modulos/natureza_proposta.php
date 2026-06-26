@@ -38,7 +38,7 @@ try {
             </div>
 
             <form id="form-modulo" class="space-y-8">
-                <input type="hidden" name="modulo" value="natureza_proposta">
+                <input type="hidden" name="modulo" value="natureza_proposta_update">
 
                 <div class="bg-gray-50/60 border border-gray-200/60 p-6 rounded-2xl">
                     <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-200/50">
