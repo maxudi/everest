@@ -1,4 +1,5 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
 try {
     // Busca as metas para preencher o select

@@ -1,3 +1,8 @@
+<?php
+require_once 'trava.php'; // Protege a página principal
+require_once 'config.php';
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

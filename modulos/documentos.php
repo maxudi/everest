@@ -1,4 +1,5 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
 try {
     // Carrega a listagem fixa de documentos guardada no banco

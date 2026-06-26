@@ -1,4 +1,5 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
 try {
     // Busca todos os membros inseridos na grade

@@ -1,4 +1,5 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
 try {
     $stmt = $pdo->query("SELECT * FROM instituicoes WHERE id = 1");

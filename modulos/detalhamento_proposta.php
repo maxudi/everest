@@ -1,4 +1,5 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
 
 // Verifica se a conexão com o banco de dados está disponível

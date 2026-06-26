@@ -1,5 +1,7 @@
 <?php
+require_once '../trava.php';
 require_once '../config.php';
+
 try {
     $stmt = $pdo->query("SELECT * FROM dados_bolsa WHERE id = 1");
     $dados = $stmt->fetch() ?: [];

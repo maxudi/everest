@@ -1,4 +1,6 @@
 <?php
+
+require_once 'trava.php'; // Protege a página principal
 // salvar.php
 require_once 'config.php';
 
