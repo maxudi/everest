@@ -18,6 +18,16 @@ require_once 'config.php';
             <h1 class="text-3xl font-bold text-blue-900">Formulário FAPEMIG (Espelho)</h1>
             <p class="text-gray-600 mt-2">Preencha offline e envie para o EVEREST quando estiver pronto.</p>
         </header>
+        <div class="flex justify-between items-center bg-white border-b border-slate-200 px-6 py-4 mb-6 shadow-sm">
+    <div>
+        <h1 class="text-xl font-bold text-slate-900">🚀 Painel Espelho FAPEMIG</h1>
+        <p class="text-xs text-slate-500">Conectado como: <span class="font-semibold text-blue-600"><?php echo htmlspecialchars($_SESSION['usuario'] ?? 'Usuário'); ?></span></p>
+    </div>
+    
+    <a href="logout.php" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-medium rounded-xl transition flex items-center gap-1.5 border border-rose-200/60">
+        <span>Sair</span> 🚪
+    </a>
+</div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             

@@ -5,6 +5,8 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 // 1. Lê a lista completa de usuários do ambiente (.env)
 $env_users = getenv('APP_USERS') ?: 'max:12345678,admin:12345678,grazy:12345678';
+// ADICIONE TEMPORARIAMENTE PARA TESTAR:
+ echo "<pre>Variável lida: "; var_dump($env_users); echo "</pre>";
 
 // 2. Processa a string do ambiente e transforma em um Array estruturado
 $usuarios_permitidos = [];
