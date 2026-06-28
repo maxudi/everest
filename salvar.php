@@ -384,6 +384,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // =========================================================================
+    // 7.2. MODULO: UPLOAD DO ANTEPROJETO (Novo)
+    // =========================================================================
+    if ($modulo === 'upload_anteprojeto') {
+        if (!isset($_FILES['arquivo_anteprojeto']) || $_FILES['arquivo_anteprojeto']['error'] !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Arquivo inválido para o anteprojeto.']);
+            exit;
+        }
+
+        $fileTmpPath = $_FILES['arquivo_anteprojeto']['tmp_name'];
+        $fileName = $_FILES['arquivo_anteprojeto']['name'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        
+        if ($fileExtension !== 'pdf') {
+            echo json_encode(['status' => 'erro', 'mensagem' => 'O anteprojeto precisa obrigatoriamente ser em formato PDF.']);
+            exit;
+        }
+
+        $uploadFileDir = __DIR__ . '/uploads/';
+        if (!is_dir($uploadFileDir)) {
+            mkdir($uploadFileDir, 0755, true);
+        }
+
+        // Nome fixo conforme o seu padrão
+        $dest_path = $uploadFileDir . 'anteprojeto.pdf';
+
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            echo json_encode([
+                'status' => 'sucesso', 
+                'mensagem' => 'Anteprojeto enviado com sucesso!'
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao mover o anteprojeto para a pasta uploads.']);
+        }
+        exit;
+    }
+
+    // =========================================================================
+    // 7.3. MODULO: REMOÇÃO DO ANTEPROJETO (Novo)
+    // =========================================================================
+    if ($modulo === 'upload_anteprojeto_del') {
+        $filePath = __DIR__ . '/uploads/anteprojeto.pdf';
+        
+        if (file_exists($filePath)) {
+            if (@unlink($filePath)) {
+                echo json_encode(['status' => 'sucesso', 'mensagem' => 'Anteprojeto removido com sucesso!']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['status' => 'erro', 'mensagem' => 'Não foi possível deletar o arquivo físico.']);
+            }
+        } else {
+            echo json_encode(['status' => 'sucesso', 'mensagem' => 'O arquivo já não existia no servidor.']);
+        }
+        exit;
+    }
+
+    // =========================================================================
     // 8. AÇÃO GENÉRICA: ATUALIZAÇÃO EM LOTE AUTOSAVE (Padrão: nome_tabela_update)
     // =========================================================================
     if (strpos($modulo, '_update') !== false) {

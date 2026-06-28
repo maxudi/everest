@@ -1,7 +1,6 @@
 <?php
 // modulos/formularios.php
 
-// Correção dos caminhos para buscar os ficheiros de segurança e ligação na raiz
 require_once '../trava.php';
 require_once '../config.php';
 
@@ -12,6 +11,9 @@ try {
 } catch (PDOException $e) {
     die("Erro ao carregar anexos do banco de dados: " . $e->getMessage());
 }
+
+// Verifica se o anteprojeto já existe fisicamente na pasta uploads (subindo um nível)
+$anteprojeto_existe = file_exists('../uploads/anteprojeto.pdf');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -32,11 +34,25 @@ try {
                 </a>
                 <div class="flex items-center gap-3 flex-wrap">
                     <h1 class="text-xl font-bold text-gray-900">📋 Controle de Formulários e Anexos</h1>
-                    <a href="../uploads/anteprojeto.pdf" target="_blank" title="Visualizar Anteprojeto" class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md hover:bg-red-100 transition animate-pulse">
-                        📄 Anteprojeto
-                    </a>
+                    
+                    <div id="anteprojeto-container" class="flex items-center gap-2">
+                        <?php if ($anteprojeto_existe): ?>
+                            <a href="../uploads/anteprojeto.pdf" target="_blank" id="anteprojeto-link" class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md hover:bg-red-100 transition">
+                                📄 Anteprojeto
+                            </a>
+                            <button onclick="excluirAnteprojeto()" id="anteprojeto-btn-del" title="Excluir Anteprojeto" class="text-xs p-1 text-gray-400 hover:text-red-500 transition">
+                                🗑️
+                            </button>
+                        <?php else: ?>
+                            <label class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-100 border border-gray-300 px-2.5 py-1 rounded-md hover:bg-gray-200 cursor-pointer transition" title="Enviar Anteprojeto PDF">
+                                📤 Enviar Anteprojeto
+                                <input type="file" accept=".pdf" class="hidden" onchange="enviarAnteprojeto(this)">
+                            </label>
+                        <?php endif; ?>
+                    </div>
+
                 </div>
-                <p class="text-xs text-gray-500 mt-1.5">Gerencie os modelos originais e controle as versões preenchidas enviadas para o servidor.</p>
+                <p class="text-xs text-gray-500 mt-1.5">Gerencie os models originais e controle as versões preenchidas enviadas para o servidor.</p>
             </div>
             <span id="status-global" class="text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">Pronto</span>
         </div>
@@ -117,7 +133,99 @@ try {
     </div>
 
     <script>
-    function ejecutarUpload(input, codigoAnexo) {
+    // --- FUNÇÕES DO ANTEPROJETO ---
+    function enviarAnteprojeto(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        const file = input.files[0];
+        const statusGlobal = document.getElementById('status-global');
+        const container = document.getElementById('anteprojeto-container');
+
+        statusGlobal.innerText = "Enviando anteprojeto...";
+        statusGlobal.className = "text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full";
+
+        const formData = new FormData();
+        formData.append('modulo', 'upload_anteprojeto');
+        formData.append('arquivo_anteprojeto', file);
+
+        fetch('../salvar.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Erro na resposta do servidor.");
+            return res.json();
+        })
+        .then(data => {
+            if (data.status === 'sucesso') {
+                statusGlobal.innerText = "Pronto";
+                statusGlobal.className = "text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full";
+                
+                // Atualiza a interface inserindo a lixeira e o link correto na hora
+                container.innerHTML = `
+                    <a href="../uploads/anteprojeto.pdf" target="_blank" id="anteprojeto-link" class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md hover:bg-red-100 transition">
+                        📄 Anteprojeto
+                    </a>
+                    <button onclick="excluirAnteprojeto()" id="anteprojeto-btn-del" title="Excluir Anteprojeto" class="text-xs p-1 text-gray-400 hover:text-red-500 transition">
+                        🗑️
+                    </button>
+                `;
+            } else {
+                alert("Erro: " + data.mensagem);
+                statusGlobal.innerText = "Falha no envio";
+                statusGlobal.className = "text-xs font-medium text-red-600 bg-red-50 px-3 py-1.5 rounded-full";
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Erro de comunicação ao enviar o anteprojeto.");
+        });
+    }
+
+    function excluirAnteprojeto() {
+        if (!confirm("Tem certeza que deseja apagar o arquivo do Anteprojeto?")) return;
+
+        const statusGlobal = document.getElementById('status-global');
+        const container = document.getElementById('anteprojeto-container');
+
+        statusGlobal.innerText = "Removendo anteprojeto...";
+        statusGlobal.className = "text-xs font-medium text-red-600 bg-red-50 px-3 py-1.5 rounded-full";
+
+        const formData = new FormData();
+        formData.append('modulo', 'upload_anteprojeto_del');
+
+        fetch('../salvar.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Erro na resposta.");
+            return res.json();
+        })
+        .then(data => {
+            if (data.status === 'sucesso') {
+                statusGlobal.innerText = "Pronto";
+                statusGlobal.className = "text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full";
+                
+                // Reverte instantaneamente para o botão de envio
+                container.innerHTML = `
+                    <label class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-gray-500 bg-gray-100 border border-gray-300 px-2.5 py-1 rounded-md hover:bg-gray-200 cursor-pointer transition" title="Enviar Anteprojeto PDF">
+                        📤 Enviar Anteprojeto
+                        <input type="file" accept=".pdf" class="hidden" onchange="enviarAnteprojeto(this)">
+                    </label>
+                `;
+            } else {
+                alert("Erro: " + data.mensagem);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Erro ao excluir o anteprojeto.");
+        });
+    }
+
+    // --- FUNÇÕES DOS ANEXOS DA TABELA ---
+    function executarUpload(input, codigoAnexo) {
         if (!input.files || input.files.length === 0) return;
         
         const file = input.files[0];
@@ -133,7 +241,6 @@ try {
         formData.append('codigo_anexo', codigoAnexo);
         formData.append('arquivo_anexo', file);
 
-        // Dispara a requisição subindo um nível para encontrar o salvar.php na raiz
         fetch('../salvar.php', {
             method: 'POST',
             body: formData
@@ -147,7 +254,6 @@ try {
                 statusGlobal.innerText = "Pronto";
                 statusGlobal.className = "text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full";
                 
-                // Injeta na hora o check verde, o link do documento e o botão de apagar
                 statusContainer.innerHTML = `
                     <span class="inline-flex items-center text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">✓ Pronto</span>
                     <a href="../uploads/${data.arquivo_salvo}" target="_blank" title="Ver documento enviado" class="text-base hover:scale-110 transition">📄</a>
@@ -192,7 +298,6 @@ try {
                 statusGlobal.innerText = "Pronto";
                 statusGlobal.className = "text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full";
                 
-                // Retorna o bloco visual para o estado Pendente de forma reativa
                 statusContainer.innerHTML = `
                     <span class="inline-flex items-center text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
                         Pendente
