@@ -97,6 +97,12 @@ require_once 'config.php';
                 <p class="text-sm text-gray-500 mt-1">Upload e gerenciamento de PDFs e anexos obrigatórios.</p>
             </a>
 
+            <a href="modulos/formularios.php" class="block p-6 bg-white rounded-xl shadow-sm border border-blue-200 bg-blue-50/30 hover:shadow-md hover:border-blue-500 transition-all duration-200">
+                <div class="text-blue-600 text-2xl mb-3">📋</div>
+                <h3 class="text-lg font-semibold text-blue-900">Preenchimento de formulários.</h3>
+                <p class="text-sm text-gray-500 mt-1">Preenchimento de formulários.</p>
+            </a>
+
         </div>
     </div>
 

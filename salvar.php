@@ -291,7 +291,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // =========================================================================
-    // 7. AÇÃO GENÉRICA: ATUALIZAÇÃO EM LOTE AUTOSAVE (Padrão: nome_tabela_update)
+   // =========================================================================
+    // 7. MODULO: UPLOAD DE FORMULÁRIOS E ANEXOS (Atualizado)
+    // =========================================================================
+    if ($modulo === 'upload_anexo') {
+        $codigo_anexo = $_POST['codigo_anexo'] ?? '';
+        
+        if (empty($codigo_anexo) || !isset($_FILES['arquivo_anexo']) || $_FILES['arquivo_anexo']['error'] !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Arquivo inválido ou dados incompletos para upload.']);
+            exit;
+        }
+
+        $fileTmpPath = $_FILES['arquivo_anexo']['tmp_name'];
+        $fileName = $_FILES['arquivo_anexo']['name'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        
+        // Valida extensões permitidas
+        if (!in_array($fileExtension, ['docx', 'doc', 'pdf'])) {
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Apenas arquivos Word (.doc, .docx) ou PDF são aceitos.']);
+            exit;
+        }
+
+        // Novo padrão sugerido por você: "anexo_i_enviado.docx"
+        $nome_limpo = strtolower(str_replace(' ', '_', $codigo_anexo));
+        $newFileName = $nome_limpo . '_enviado.' . $fileExtension;
+        
+        $uploadFileDir = __DIR__ . '/uploads/';
+        if (!is_dir($uploadFileDir)) {
+            mkdir($uploadFileDir, 0755, true);
+        }
+
+        $dest_path = $uploadFileDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            try {
+                // Atualiza o status e grava o NOME EXATO do arquivo enviado no banco
+                $stmt = $pdo->prepare("UPDATE anexos_fapemig SET status_upload = 1, caminho_arquivo = ? WHERE codigo_anexo = ?");
+                $stmt->execute([$newFileName, $codigo_anexo]);
+                
+                echo json_encode([
+                    'status' => 'sucesso', 
+                    'mensagem' => 'Upload realizado com sucesso!',
+                    'arquivo_salvo' => $newFileName
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao salvar no banco: ' . $e->getMessage()]);
+            }
+        } else {
+            http_response_code(500);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao mover o arquivo para a pasta uploads.']);
+        }
+        exit;
+    }
+
+// =========================================================================
+    // 7.1. MODULO: REMOÇÃO DE ANEXO ENVIADO (Novo)
+    // =========================================================================
+    if ($modulo === 'upload_anexo_del') {
+        $codigo_anexo = $_POST['codigo_anexo'] ?? '';
+
+        if (empty($codigo_anexo)) {
+            http_response_code(400);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Dados incompletos.']);
+            exit;
+        }
+
+        try {
+            // Busca o nome do arquivo para poder apagá-lo fisicamente
+            $stmtFile = $pdo->prepare("SELECT caminho_arquivo FROM anexos_fapemig WHERE codigo_anexo = ?");
+            $stmtFile->execute([$codigo_anexo]);
+            $arquivo = $stmtFile->fetchColumn();
+
+            if ($arquivo) {
+                $filePath = __DIR__ . '/uploads/' . $arquivo;
+                if (file_exists($filePath)) {
+                    @unlink($filePath); // Remove o arquivo físico da pasta uploads
+                }
+
+                // Reseta o status e o caminho no banco de dados
+                $stmt = $pdo->prepare("UPDATE anexos_fapemig SET status_upload = 0, caminho_arquivo = NULL WHERE codigo_anexo = ?");
+                $stmt->execute([$codigo_anexo]);
+            }
+
+            echo json_encode(['status' => 'sucesso', 'mensagem' => 'Arquivo removido com sucesso!']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['status' => 'erro', 'mensagem' => 'Erro ao remover do banco: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // =========================================================================
+    // 8. AÇÃO GENÉRICA: ATUALIZAÇÃO EM LOTE AUTOSAVE (Padrão: nome_tabela_update)
     // =========================================================================
     if (strpos($modulo, '_update') !== false) {
         $tabela = str_replace('_update', '', $modulo);
